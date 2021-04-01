@@ -1,0 +1,88 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Text.RegularExpressions;
+
+namespace SoftUnitFundamentalsFinalExam
+{
+    class Program
+    {
+        private static string casint;
+
+        static void Main(string[] args)
+        {
+            //SoftUnitFundamentalsFinalExam03NeedForSpeedIII
+
+            Dictionary<string, int[]> carsList = new Dictionary<string, int[]>();//{car}|{mileage}|{fuel}
+
+            int n = int.Parse(Console.ReadLine());
+            for (int i = 0; i < n; i++)
+            {
+                string[] car = Console.ReadLine().Split('|').ToArray();//{car}|{mileage}|{fuel}
+                carsList.Add(car[0], new int[] { int.Parse(car[1]), int.Parse(car[2]) });
+            }
+
+            while (true)
+            {
+                string[] command = Console.ReadLine().Split(" : ", StringSplitOptions.RemoveEmptyEntries).ToArray();
+                if (command[0] == "Stop")
+                {
+                    break;
+                }
+                switch (command[0])
+                {
+                    case "Drive"://•	Drive : {car} : {distance} : {fuel} 
+                        string carNameA = command[1];
+                        int distance = int.Parse(command[2]);
+                        int useFuel = int.Parse(command[3]);
+
+                        if (useFuel > carsList[carNameA][1])
+                        {
+                            Console.WriteLine("Not enough fuel to make that ride");
+                            continue;
+                        }
+                        carsList[carNameA][0] += distance;
+                        carsList[carNameA][1] -= useFuel;
+                        Console.WriteLine($"{carNameA} driven for {distance} kilometers. {useFuel} liters of fuel consumed.");
+                        if (carsList[carNameA][0] > 100000)
+                        {
+                            Console.WriteLine($"Time to sell the {carNameA}!");
+                            carsList.Remove(carNameA);
+                        }
+                        break;
+
+                    case "Refuel"://•	Refuel : {car} : {fuel}
+                        string carNameB = command[1];
+                        int refuel = int.Parse(command[2]);
+                        if (refuel + carsList[carNameB][1] > 75)
+                        {
+                            refuel = 75 - carsList[carNameB][1];
+                        }
+                        carsList[carNameB][1] += refuel;
+                        Console.WriteLine($"{carNameB} refueled with {refuel} liters");
+                        break;
+
+                    case "Revert"://•	Revert : {car} : {kilometers}
+                        string carNameC = command[1];
+                        int km = int.Parse(command[2]);
+                        carsList[carNameC][0] -= km;
+                        if (carsList[carNameC][0] < 10000)
+                        {
+                            carsList[carNameC][0] = 10000;
+                            continue;
+                        }
+                        Console.WriteLine($"{carNameC} mileage decreased by {km} kilometers");
+                        break;
+                }
+            }
+            foreach (var item in carsList.OrderBy(x=>x.Key).OrderByDescending(x=>x.Value[0]))
+            {
+                Console.WriteLine($"{item.Key} -> Mileage: {item.Value[0]} kms, Fuel in the tank: {item.Value[1]} lt.");
+            }
+
+            //
+        }
+
+    }
+}
